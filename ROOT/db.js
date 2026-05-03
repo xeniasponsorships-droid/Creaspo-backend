@@ -1,5 +1,4 @@
 
-Copy
 
 const initSqlJs = require('sql.js');
 const fs = require('fs');
