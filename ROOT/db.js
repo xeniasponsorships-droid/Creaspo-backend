@@ -1,6 +1,3 @@
-
-
-
 const initSqlJs = require('sql.js');
 const fs = require('fs');
 const path = require('path');
@@ -13,7 +10,6 @@ class DB {
     this.raw = raw;
     this._timer = null;
   }
-
   _persist() {
     clearTimeout(this._timer);
     this._timer = setTimeout(() => {
@@ -21,25 +17,20 @@ class DB {
       catch (e) { console.error('[db] persist error:', e.message); }
     }, 150);
   }
-
   exec(sql) { this.raw.run(sql); return this; }
-
   run(sql, params) { this.raw.run(sql, params || []); this._persist(); return this; }
-
   get(sql, params) {
     const r = this.raw.exec(sql, params || []);
     if (!r.length || !r[0].values.length) return undefined;
     const { columns, values } = r[0];
     return Object.fromEntries(columns.map((c, i) => [c, values[0][i]]));
   }
-
   all(sql, params) {
     const r = this.raw.exec(sql, params || []);
     if (!r.length) return [];
     const { columns, values } = r[0];
     return values.map(row => Object.fromEntries(columns.map((c, i) => [c, row[i]])));
   }
-
   prepare(sql) {
     const db = this;
     const norm = (args) => {
@@ -53,7 +44,6 @@ class DB {
       all(...args) { return db.all(sql, norm(args)); },
     };
   }
-
   transaction(fn) {
     const db = this;
     return function (...args) {
@@ -103,30 +93,12 @@ CREATE TABLE IF NOT EXISTS oauth_tokens (
 function seed(db) {
   const row = db.get('SELECT COUNT(*) as n FROM users');
   if (row && row.n > 0) return;
-  console.log('[db] seeding demo data...');
   const now = Math.floor(Date.now() / 1000);
-  const day = 86400;
   const h = p => bcrypt.hashSync(p, 10);
-  const fd = n => new Date(Date.now() + n * 86400000).toISOString().split('T')[0];
   const userSQL = 'INSERT INTO users (id,email,password,role,name,status,joined_at,profile) VALUES (?,?,?,?,?,?,?,?)';
   [
     ['admin', 'admin@creaspo.io', h('admin3428./blrp'), 'admin', 'Creaspo Admin', 'active', now, '{}'],
-    ['u1', 'alex@x.io', h('pass'), 'creator', 'Alex Chen', 'active', now-30*day, JSON.stringify({username:'@alextech', bio:'Tech & AI creator.', niches:['Tech','Gaming'], platforms:['youtube','instagram'], followers:'320k', engagement:'4.2%', location:'United States', connectedPlatforms:[], liveStats:{}})],
-    ['u2', 'sarah@x.io', h('pass'), 'creator', 'Sarah Bloom', 'active', now-25*day, JSON.stringify({username:'@sarahbloom', bio:'Fitness & wellness content.', niches:['Fitness','Lifestyle'], platforms:['instagram','tiktok'], followers:'180k', engagement:'6.1%', location:'United Kingdom', connectedPlatforms:[], liveStats:{}})],
-    ['u3', 'marco@x.io', h('pass'), 'creator', 'Marco Rivera', 'active', now-20*day, JSON.stringify({username:'@marcofinds', bio:'Finance tips for Gen Z.', niches:['Finance'], platforms:['tiktok'], followers:'55k', engagement:'8.4%', location:'United States', connectedPlatforms:[], liveStats:{}})],
-    ['u4', 'nordvpn@x.io', h('pass'), 'sponsor', 'NordVPN', 'active', now-60*day, JSON.stringify({company:'NordVPN', desc:'Leading VPN service.', industry:'Cybersecurity', niche:'Tech', website:'nordvpn.com', notes:'Prefers long-form.'})],
-    ['u5', 'myprotein@x.io', h('pass'), 'sponsor', 'MyProtein', 'active', now-55*day, JSON.stringify({company:'MyProtein', desc:'#1 sports nutrition brand.', industry:'Nutrition', niche:'Fitness', website:'myprotein.com', notes:'Short-form preferred.'})],
-    ['u6', 'gymshark@x.io', h('pass'), 'sponsor', 'Gymshark', 'active', now-10*day, JSON.stringify({company:'Gymshark', desc:'Fitness apparel.', industry:'Sportswear', niche:'Fitness', website:'gymshark.com', notes:'Short-form preferred.'})],
-    ['u7', 'squarespace@x.io', h('pass'), 'sponsor', 'Squarespace', 'active', now-40*day, JSON.stringify({company:'Squarespace', desc:'Build a beautiful website.', industry:'SaaS', niche:'Tech', website:'squarespace.com', notes:'Open to all formats.'})],
   ].forEach(u => db.run(userSQL, u));
-  const campSQL = 'INSERT INTO campaigns (id,sponsor_id,title,description,budget,num_creators,requirements,deadline,niche,status,created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)';
-  [
-    ['c1','u4','NordVPN Tech Creators','Deep-dive privacy/security reviews.','$800',3,'1 YouTube video (10+ min)',fd(30),'Tech','active',now-5*day],
-    ['c2','u5','MyProtein Fitness Month','Authentic supplement content.','$400',4,'2 Instagram posts + 1 reel',fd(20),'Fitness','active',now-3*day],
-    ['c3','u6','Gymshark Winter Drop','Workout content featuring winter collection.','$350',5,'3 Instagram posts + 2 reels',fd(15),'Fitness','active',now-2*day],
-    ['c4','u7','Squarespace Creator Series','Portfolio building for creators.','$600',4,'1 YouTube video or 2 TikToks',fd(45),'Tech','active',now-day],
-  ].forEach(c => db.run(campSQL, c));
-  console.log('[db] seed complete.');
 }
 
 let _instance = null;
@@ -136,7 +108,6 @@ async function initDB() {
   const raw = fs.existsSync(FILE)
     ? new SQL.Database(fs.readFileSync(FILE))
     : new SQL.Database();
-  console.log(fs.existsSync(FILE) ? '[db] loaded from disk' : '[db] new database');
   const db = new DB(raw);
   db.exec(SCHEMA);
   seed(db);
