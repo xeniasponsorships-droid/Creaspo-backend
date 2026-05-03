@@ -1,4 +1,4 @@
-Sorry! Here it is — copy everything between the lines:
+
 
 js
 const initSqlJs = require('sql.js');
