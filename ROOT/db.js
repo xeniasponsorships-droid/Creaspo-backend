@@ -1,5 +1,3 @@
-
-
 const initSqlJs = require('sql.js');
 const fs = require('fs');
 const path = require('path');
@@ -110,6 +108,10 @@ CREATE TABLE IF NOT EXISTS verify_requests (
   id TEXT PRIMARY KEY, user_id TEXT NOT NULL, platform TEXT NOT NULL,
   link TEXT NOT NULL, code TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'pending', created_at INTEGER NOT NULL DEFAULT 0
+);
+CREATE TABLE IF NOT EXISTS chat_messages (
+  id TEXT PRIMARY KEY, deal_id TEXT NOT NULL, user_id TEXT NOT NULL,
+  message TEXT NOT NULL, created_at INTEGER NOT NULL DEFAULT 0
 );
 `;
  
