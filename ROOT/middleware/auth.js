@@ -1,14 +1,14 @@
 const jwt = require('jsonwebtoken');
-const { getDB } = require('../db');
+const { getOne } = require('../db');
 
-function requireAuth(req, res, next) {
+async function requireAuth(req, res, next) {
   const header = req.headers.authorization;
   if (!header?.startsWith('Bearer ')) return res.status(401).json({ error: 'No token' });
   try {
     const payload = jwt.verify(header.slice(7), process.env.JWT_SECRET);
-    const user = getDB().get('SELECT * FROM users WHERE id = ?', [payload.id]);
+    const user = await getOne('SELECT * FROM users WHERE id = $1', [payload.id]);
     if (!user || user.status === 'kicked') return res.status(401).json({ error: 'Account not found' });
-    user.profile = JSON.parse(user.profile || '{}');
+    user.profile = typeof user.profile === 'string' ? JSON.parse(user.profile) : user.profile;
     req.user = user;
     next();
   } catch {
