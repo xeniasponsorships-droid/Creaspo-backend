@@ -160,7 +160,7 @@ router.post('/:id/approve', requireAuth, requireRole('sponsor'), async (req, res
     const deal = parseDeal(await getOne('SELECT * FROM deals WHERE id = $1', [req.params.id]));
     if (!deal || deal.sponsor_id !== req.user.id) return res.status(403).json({ error: 'Forbidden' });
     if (deal.status !== 'review') return res.status(400).json({ error: 'Nothing to approve' });
-    res.json(await stamp(deal, 'paid', { by: 'sponsor', action: 'approved and paid' }));
+    res.json(await stamp(deal, 'approved', { by: 'sponsor', action: 'content approved' }));
   } catch(e) { res.status(500).json({ error: 'Server error' }); }
 });
 
@@ -180,7 +180,7 @@ router.post('/:id/complete', requireAuth, async (req, res) => {
     const deal = parseDeal(await getOne('SELECT * FROM deals WHERE id = $1', [req.params.id]));
     if (!deal) return res.status(404).json({ error: 'Not found' });
     if (deal.sponsor_id !== req.user.id && deal.creator_id !== req.user.id) return res.status(403).json({ error: 'Forbidden' });
-    if (!['active','changes','review'].includes(deal.status)) return res.status(400).json({ error: 'Cannot complete now' });
+    if (!['active','changes','review','approved'].includes(deal.status)) return res.status(400).json({ error: 'Cannot complete now' });
     res.json(await stamp(deal, 'paid', { by: req.user.role, action: 'marked completed' }));
   } catch(e) { res.status(500).json({ error: 'Server error' }); }
 });
