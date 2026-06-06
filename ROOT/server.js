@@ -20,9 +20,9 @@ initDB().then(() => {
   app.use('/api/oauth',        require('./routes/oauth'));
   app.use('/api/verify',       require('./routes/verify'));
   app.use('/api/chat',         require('./routes/chat'));
+  app.use('/api/videos',       require('./routes/videos'));
   app.get('/api/health', (_req, res) => res.json({ status: 'ok', uptime: process.uptime() }));
   app.use((_req, res) => res.status(404).json({ error: 'Not found' }));
   app.use((err, _req, res, _next) => { console.error(err.message); res.status(500).json({ error: 'Server error' }); });
   app.listen(PORT, () => console.log(`\n🚀  http://localhost:${PORT}/api/health\n`));
 }).catch(err => { console.error('DB init failed:', err); process.exit(1); });
- 
