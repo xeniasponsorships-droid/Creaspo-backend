@@ -106,6 +106,15 @@ async function initDB() {
       message TEXT NOT NULL,
       created_at BIGINT NOT NULL DEFAULT 0
     );
+    CREATE TABLE IF NOT EXISTS videos (
+      id TEXT PRIMARY KEY,
+      creator_id TEXT NOT NULL,
+      title TEXT NOT NULL,
+      description TEXT DEFAULT '',
+      url TEXT NOT NULL,
+      storage_path TEXT NOT NULL,
+      created_at BIGINT NOT NULL DEFAULT 0
+    );
   `);
 
   // Seed admin if no users exist
